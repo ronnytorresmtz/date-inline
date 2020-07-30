@@ -15,7 +15,6 @@
         "laravel-nova": "^1.0"
     },
     "dependencies": {
-        "flatpickr": "^4.6.3",
         "vue": "^2.5.0"
     }
 }
