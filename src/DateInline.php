@@ -12,4 +12,11 @@ class DateInline extends Field
      * @var string
      */
     public $component = 'date-inline';
+
+    
+    public function showOverdue()
+    {
+        return $this->withMeta(['showOverdue' => true]);
+    }
+
 }
