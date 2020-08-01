@@ -54,7 +54,6 @@ export default {
         this.$nextTick(() => {
             this.flatpickr = flatpickr(this.$refs.datePicker, {
                 allowInput: true,
-                dateFormat: this.field.format,
             })
         })
         this.dateIsOverDue(this.field.value);
