@@ -1,21 +1,23 @@
 <template>
     <div>
         <div class="flex items-center" @keyup.esc="closeDatePicker">
-            
             <input
+                v-if="field.inlineOnIndex && isEditable"
                 :dusk="field.attribute"
                 :name="field.name"
                 :id="fieldId"
                 class="w-full form-control form-input form-input-bordered"
                 :class="errorClasses"
                 :value="field.value"
-                maxlength="10"
+                maxlength="10"                
                 ref="datePicker"
                 type="text"
                 :placeholder="field.name"
                 @change="dateChange"
+                @blur="closeEdit"
                 :disabled="field.readonly"
             />
+            <span v-else class="whitespace-no-wrap cursor-pointer" @click="openCalendar">{{ field.value }}</span>
         </div>
         <div >
             <div class="text-danger text-sm" v-show="!isValidDate">* Date is not valid</div>
@@ -37,38 +39,64 @@ export default {
     
     props: ['resourceName', 'field'],
 
+    created() {
+        document.addEventListener('keyup', (evt) => {
+            if (evt.keyCode === 27) {
+                this.closeEdit();
+            }
+        });
+    },
+
     computed: {
-            resourceId() {
-                return this.$parent.resource.id.value;
-            },
-            fieldId() {
-                return `inline-text-field-${this.field.name}-${this.resourceId}`;
-            },
+        resourceId() {
+            return this.$parent.resource.id.value;
         },
+        fieldId() {
+            return `inline-text-field-${this.field.name}-${this.resourceId}`;
+        },
+    },
+
     data: () => ({ 
         flatpickr: null,
         isValidDate: true,
         isOverdue: false,
+        isEditable: false,
     }),
+    
     mounted() {
-        this.$nextTick(() => {
-            this.flatpickr = flatpickr(this.$refs.datePicker, {
-                allowInput: true,
-            })
-        })
+        this.field.value = this.field.value || '--';
         this.dateIsOverDue(this.field.value);
     },
     methods: {
 
+        closeEdit() {
+            this.isEditable = false;
+            this.field.value = this.field.value || '--';
+        },
+        openCalendar() {
+            this.isEditable=true;
+            this.field.value = (this.field.value === '--') ? '' : this.field.value;
+            this.$nextTick(() => {
+                this.flatpickr = flatpickr(this.$refs.datePicker, {
+                    allowInput: true,
+                });
+            });
+        },
+
         dateChange(e) {
+            this.isEditable = false;
             this.isOverdue = false;
             this.isValidDate = false;
             this.isValidDate = this.checkValidDate(e.target.value);
 
             this.field.value = e.target.value;
 
-            if (this.isValidDate) {
+            if (!this.field.value) {
+                this.field.value = '--';
+            }
 
+            if (this.isValidDate) {
+                
                 this.dateIsOverDue(e.target.value);
 
                 let formData = new FormData();
@@ -86,7 +114,7 @@ export default {
                         this.$toasted.show(response, { 
                             type: 'error' 
                         });
-                    })
+                    });
 
             } else {
 
@@ -95,6 +123,8 @@ export default {
                 });
 
             }
+            
+            
         },
 
         // refreshTable() {
