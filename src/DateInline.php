@@ -59,4 +59,9 @@ class DateInline extends Field
         return $this->withMeta(['showOverdue' => true]);
     }
 
+    public function greaterThan($date)
+    {
+        return $this->withMeta(['greaterThan' => $date]);
+    }
+
 }

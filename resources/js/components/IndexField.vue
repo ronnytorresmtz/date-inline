@@ -62,6 +62,12 @@ export default {
         isOverdue: false,
         isEditable: false,
     }),
+
+    created() {
+        Nova.$on('deleteMsgs', () =>{
+             this.isGreaterThan = false;
+        });
+    },
     
     mounted() {
         this.field.value = this.field.value || '--';
@@ -84,9 +90,9 @@ export default {
         },
 
         dateChange(e) {
+
             this.isEditable = false;
             this.isOverdue = false;
-            this.isValidDate = false;
             this.isValidDate = this.checkValidDate(e.target.value);
 
             this.field.value = e.target.value;
@@ -99,6 +105,12 @@ export default {
                 
                 this.dateIsOverDue(e.target.value);
 
+                if (!this.checkGreaterThan(e)) {
+                    this.$toasted.show('Start Date is greater than End Date', { 
+                        type: 'error' 
+                    });
+                }
+
                 let formData = new FormData();
                 formData.append(this.field.attribute, e.target.value);
                 formData.append('_method', 'PUT');
@@ -109,21 +121,13 @@ export default {
                             this.$toasted.show(`${this.field.name} updated to "${e.target.value}"`, {
                                 type: 'success' 
                             });
-                    }, 
-                    (response) => {
-                        this.$toasted.show(response, { 
-                            type: 'error' 
-                        });
-                    });
-
+                    }); 
+               
             } else {
-
                 this.$toasted.show(`${e.target.name} ${e.target.value} is not valid ('YYYY-MM-DD')`, { 
                     type: 'error' 
                 });
-
             }
-            
             
         },
 
@@ -141,6 +145,7 @@ export default {
         },
 
         checkValidDate(date) {
+            
             if (date.length === 0) {
                 return true;
             }
@@ -151,6 +156,41 @@ export default {
                 return true;
             }
             return false;
+        },
+
+        checkGreaterThan(e) {
+            
+            const currentFieldValue = e.target.value;
+            const currentFieldName = this.field.name;
+            const isTheGreaterField = this.field.hasOwnProperty('greaterThan');
+
+            if (isTheGreaterField) {
+                const dateValue = this.$parent.resource.fields.filter((field) => {
+                    if (field.name === this.field.greaterThan) {
+                        return field;
+                    }
+                });
+                if (['', '--'].includes(currentFieldValue) || ['', '--'].includes(dateValue[0].value)){
+                    return true;
+                }
+                if (currentFieldValue === dateValue[0].value) {
+                    return true;
+                }
+                return moment(currentFieldValue).isAfter(moment(dateValue[0].value));
+            } else {
+                const dateValue = this.$parent.resource.fields.filter((field) => {
+                    if (field.hasOwnProperty('greaterThan')) {
+                        return field;
+                    }
+                });
+                if (['', '--'].includes(currentFieldValue) || ['', '--'].includes(dateValue[0].value)){
+                    return true;
+                }
+                if (currentFieldValue === dateValue[0].value) {
+                    return true;
+                }
+                return moment(currentFieldValue).isBefore(moment(dateValue[0].value));
+            }
         },
 
         closeDatePicker() {
