@@ -63,11 +63,6 @@ export default {
         isEditable: false,
     }),
 
-    created() {
-        Nova.$on('deleteMsgs', () =>{
-             this.isGreaterThan = false;
-        });
-    },
     
     mounted() {
         this.field.value = this.field.value || '--';
@@ -137,11 +132,11 @@ export default {
 
         dateIsOverDue(value) {
 
-            if (moment().format('YYYY-DD-MM') === moment(value).format('YYYY-DD-MM')) {
+            if (moment().format('YYYY-DD-MM') === moment(value,'YYYY-DD-MM').format('YYYY-DD-MM')) {
                 return;
             }
 
-            this.isOverdue = (value === null) ? false : moment().isAfter(moment(value));
+            this.isOverdue = (value === null) ? false : moment().isAfter(moment(value, 'YYYY-DD-MM'));
         },
 
         checkValidDate(date) {
