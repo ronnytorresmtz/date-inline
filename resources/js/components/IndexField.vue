@@ -65,18 +65,18 @@ export default {
 
     
     mounted() {
-        this.field.value = this.field.value || '--';
+        this.field.value = this.field.value || '—';
         this.dateIsOverDue(this.field.value);
     },
     methods: {
 
         closeEdit() {
             this.isEditable = false;
-            this.field.value = this.field.value || '--';
+            this.field.value = this.field.value || '—';
         },
         openCalendar() {
             this.isEditable=true;
-            this.field.value = (this.field.value === '--') ? '' : this.field.value;
+            this.field.value = (this.field.value === '—') ? '' : this.field.value;
             this.$nextTick(() => {
                 this.flatpickr = flatpickr(this.$refs.datePicker, {
                     allowInput: true,
@@ -93,7 +93,7 @@ export default {
             this.field.value = e.target.value;
 
             if (!this.field.value) {
-                this.field.value = '--';
+                this.field.value = '—';
             }
 
             if (this.isValidDate) {
@@ -113,7 +113,7 @@ export default {
                 return Nova.request().post(`/nova-api/${this.resourceName}/${this.resourceId}`, formData)
                     .then(
                         () => {
-                            this.$toasted.show(`${this.field.name} updated to "${e.target.value}"`, {
+                            this.$toasted.show(`${this.field.name} updated to "${e.target.value || '—'}"`, {
                                 type: 'success' 
                             });
                     }); 
@@ -165,7 +165,7 @@ export default {
                         return field;
                     }
                 });
-                if (['', '--'].includes(currentFieldValue) || ['', '--'].includes(dateValue[0].value)){
+                if (['', '—'].includes(currentFieldValue) || ['', '—'].includes(dateValue[0].value)){
                     return true;
                 }
                 if (currentFieldValue === dateValue[0].value) {
@@ -178,7 +178,7 @@ export default {
                         return field;
                     }
                 });
-                if (['', '--'].includes(currentFieldValue) || ['', '--'].includes(dateValue[0].value)){
+                if (['', '—'].includes(currentFieldValue) || ['', '—'].includes(dateValue[0].value)){
                     return true;
                 }
                 if (currentFieldValue === dateValue[0].value) {
