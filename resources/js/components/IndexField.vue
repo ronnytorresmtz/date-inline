@@ -17,13 +17,13 @@
                 @blur="closeEdit"
                 :disabled="field.readonly"
             />
-            <span v-else class="whitespace-no-wrap cursor-pointer" @click="openCalendar">{{ field.value }}</span>
+            <span v-else :class="`whitespace-no-wrap ${(field.inlineOnIndex) ? 'cursor-pointer' : 'cursor-default'}`" @click="openCalendar">{{ field.value }}</span>
         </div>
         <div >
-            <div class="text-danger text-sm" v-show="!isValidDate">* Date is not valid</div>
+            <div class="text-danger text-sm cursor-default" v-show="!isValidDate">* Date is not valid</div>
         </div>
         <div v-if="field.showOverdue">
-            <div class="text-danger text-sm" v-show="isOverdue">* Date is overdue</div>
+            <div class="text-danger text-sm cursor-default" v-show="isOverdue">* Date is overdue</div>
         </div>
     </div>
 </template>
