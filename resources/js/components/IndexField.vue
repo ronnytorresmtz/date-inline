@@ -194,11 +194,13 @@ export default {
 
         // clear() {
         //     this.flatpickr.clear()
-        // },
+        // },cd
     },
 
     beforeDestroy() {
-        this.flatpickr.destroy()
+        if (this.flatpickr) {
+            this.flatpickr.destroy();
+        }
     },
     
 }
