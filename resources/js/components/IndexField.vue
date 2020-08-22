@@ -116,7 +116,7 @@ export default {
                             this.$toasted.show(`${this.field.name} updated to "${e.target.value || '—'}"`, {
                                 type: 'success' 
                             });
-                    }); 
+                    }); c
                
             } else {
                 this.$toasted.show(`${e.target.name} ${e.target.value} is not valid ('YYYY-MM-DD')`, { 
