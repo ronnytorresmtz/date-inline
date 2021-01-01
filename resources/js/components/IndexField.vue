@@ -106,9 +106,17 @@ export default {
                     });
                 }
 
+                // let formData = new FormData();
+                // formData.append(this.field.attribute, e.target.value);
+                // formData.append('_method', 'PUT');
+
                 let formData = new FormData();
+                this.$parent.resource.fields.forEach(function(field){
+                    formData.append(field.attribute, field.value);
+                });
                 formData.append(this.field.attribute, e.target.value);
                 formData.append('_method', 'PUT');
+                            
     
                 return Nova.request().post(`/nova-api/${this.resourceName}/${this.resourceId}`, formData)
                     .then(
