@@ -16,15 +16,19 @@
                 @change="dateChange"
                 @blur="closeEdit"
                 :disabled="field.readonly"
+                autocomplete="off"
             />
             <span v-else :class="`whitespace-no-wrap ${(field.inlineOnIndex) ? 'cursor-pointer' : 'cursor-default'}`" @click="openCalendar">{{ field.value }}</span>
         </div>
         <div >
-            <div class="text-danger text-sm cursor-default" v-show="!isValidDate">* Date is not valid</div>
+            <div class="text-primary text-sm text-bold cursor-default" v-show="!isValidDate">* Date is not valid</div>
         </div>
-        <div v-if="field.showOverdue">
+        <div >
+            <div class="text-primary text-sm text-bold cursor-default" v-show="isGreaterThen">* Start Date is greater than End Date</div>
+        </div>
+        <!-- <div v-if="field.showOverdue">
             <div class="text-danger text-sm cursor-default" v-show="isOverdue">* Date is overdue</div>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -61,12 +65,14 @@ export default {
         isValidDate: true,
         isOverdue: false,
         isEditable: false,
+        isGreaterThen: false,
+        dateFormat: 'YYYY-MM-DD',
     }),
 
     
     mounted() {
         this.field.value = this.field.value || '—';
-        this.dateIsOverDue(this.field.value);
+        // this.dateIsOverDue(this.field.value);
     },
     methods: {
 
@@ -87,7 +93,8 @@ export default {
         dateChange(e) {
 
             this.isEditable = false;
-            this.isOverdue = false;
+            // this.isOverdue = false;
+            this.isGreaterThen = false;
             this.isValidDate = this.checkValidDate(e.target.value);
 
             this.field.value = e.target.value;
@@ -98,9 +105,10 @@ export default {
 
             if (this.isValidDate) {
                 
-                this.dateIsOverDue(e.target.value);
+                // this.dateIsOverDue(e.target.value);
 
-                if (!this.checkGreaterThan(e)) {
+                if (!this.checkGreaterThan(e)) {        
+                    this.isGreaterThen = true;            
                     this.$toasted.show('Start Date is greater than End Date', { 
                         type: 'error' 
                     });
@@ -120,7 +128,7 @@ export default {
                     }); c
                
             } else {
-                this.$toasted.show(`${e.target.name} ${e.target.value} is not valid ('YYYY-MM-DD')`, { 
+                this.$toasted.show(`${e.target.name} ${e.target.value} is not valid (${this.dateFormat})`, { 
                     type: 'error' 
                 });
             }
@@ -131,24 +139,26 @@ export default {
         //     this.$parent.$parent.$parent.$parent.$parent.$parent.getResources();
         // },
 
-        dateIsOverDue(value) {
+        // dateIsOverDue(value) {
 
-            if (moment().format('YYYY-DD-MM') === moment(value,'YYYY-DD-MM').format('YYYY-DD-MM')) {
-                return;
-            }
+        //     if (moment().format(this.dateFormat) === moment(value,this.dateFormat).format(this.dateFormat)) {
+        //         return;
+        //     }
 
-            this.isOverdue = (value === null) ? false : moment().isAfter(moment(value, 'YYYY-DD-MM'));
-        },
+        //     this.isOverdue = (value === null) ? false : moment().isAfter(moment(value, this.dateFormat));
+        // },
 
         checkValidDate(date) {
-            
             if (date.length === 0) {
                 return true;
             }
             if (date.length !== 10) {
                 return false;
             }
-            if (moment(date, 'YYYY-MM-DD').isValid()) {
+            if (isNaN(Date.parse(date))) {
+                return false;
+            }
+            if (moment(date, this.dateFormat, true).isValid()) {
                 return true;
             }
             return false;
@@ -159,8 +169,9 @@ export default {
             const currentFieldValue = e.target.value;
             const currentFieldName = this.field.name;
             const isTheGreaterField = this.field.hasOwnProperty('greaterThan');
-
+            
             if (isTheGreaterField) {
+               
                 const dateValue = this.$parent.resource.fields.filter((field) => {
                     if (field.name === this.field.greaterThan) {
                         return field;
@@ -173,12 +184,15 @@ export default {
                     return true;
                 }
                 return moment(currentFieldValue).isAfter(moment(dateValue[0].value));
-            } else {
+            } else {                
                 const dateValue = this.$parent.resource.fields.filter((field) => {
                     if (field.hasOwnProperty('greaterThan')) {
                         return field;
                     }
                 });
+                if (dateValue.length == 0) {
+                    return true;
+                }
                 if (['', '—'].includes(currentFieldValue) || ['', '—'].includes(dateValue[0].value)){
                     return true;
                 }
